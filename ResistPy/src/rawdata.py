@@ -26,10 +26,40 @@ class Profile():
 		"""
 		"""
 		self.Quads = quads
-		self.Electrodes = []  #Or not see comment in read_electrodes?
+		self.Electrodes = None #Or not see comment in read_electrodes?
 		
 	
 	def read_electrodes(self, fname):
+		""" 
+		Reads a electrode coordinates from a table
+		Input file must have the following columns: 
+		Ref X (Y) (Z) 
+		where Y and Z are optional.  
+		"""
+		elecs = []
+		with open(fname, 'rb') as f:
+			dialect = csv.Sniffer().sniff(f.read(1024))
+			f.seek(0)
+			reader = csv.reader(f, dialect)
+			for line in reader:
+				try:
+					ref, x, y, z = line
+					elecs.append(Electrode(x, y, z, ref))
+				except ValueError:
+					try:
+						ref, x, y = line
+						elecs.append(Electrode(x=x, y=y, ref=ref))
+					except ValueError:
+						try:
+							ref, x = line
+							elecs.append(Electrode(x=x, ref=ref))
+						except:
+							print('Could not read file')
+							return
+		self.Electrodes = PolyLine(points = elecs)
+		
+		
+		
 		
 		if self.quads:
 			# if a list of quadrapoles is present,
@@ -140,7 +170,23 @@ class PolyLine():
 		a, b = tee(self.Points)
 		next(b, None)
 		return izip(a, b)
-
+	
+	def x(self):
+		return [pnt.x for pnt in self.Points]
+	
+	def y(self):
+		return [pnt.y for pnt in self.Points]
+	
+	def z(self):
+		return [pnt.z for pnt in self.Points]
+	
+	def ref(self):
+		try:
+			return [pnt.ref for pnt in self.Points]
+		except ValueError:
+			print 'Line does not contain referenced points (electrodes)'			
+		except: # Only here as unsure the ValueError is the correct error. Delete when verified
+			'Unable to find references'
 			
 
 class Point():
