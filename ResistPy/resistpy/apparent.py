@@ -1,5 +1,6 @@
 """
-Rich data structures for electrical resistivity data
+Apparent:
+Data structures and routines for working with apparent resistivity data (raw data)
 """
 
 import csv
@@ -106,6 +107,13 @@ class Profile():
 		Writes the profile to a R2 protocol file
 		"""
 		pass
+	
+	
+	def pseudosection(self, ax = None):
+		""" Makes a contour pseudosection of the apparent resistivity
+		If ax = None, creates a new figure and axes.
+		If an axes is passed as an argument, it plots into the given axes
+		"""
 			
 			
 
