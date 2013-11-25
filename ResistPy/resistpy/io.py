@@ -14,6 +14,21 @@ Parser: on init, gets the file handle (i.e opens the file)
 
 @author: james
 '''
+import csv
+
+_parser_defaults = {
+    'delimiter' : None,
+    'nrows' : None,
+    'chunksize' : None,
+    'header' : None,
+    'na_value' : 'NaN',
+    'skip_rows' : None,
+    'filetype' : 'infer'}
+
+def _read(path):
+    parser = GenericReader(path) # add kwds
+    
+    parser.read()
 
 class GenericReader(object):
     '''
@@ -21,14 +36,21 @@ class GenericReader(object):
     '''
 
 
-    def __init__(self, path):
+    def __init__(self, path, **kwds):
         '''
         Constructor
         '''
+        
         self.parser = None
+        self.f = path
+        
+        # The reader should be in keyword arguments. If not, default to...?
         
         self._make_parser(path)
         
+        
+    def _get_options(self):    
+        pass
         
     def _make_parser(self, path):
         '''
@@ -41,7 +63,19 @@ class GenericReader(object):
         
         self.parser.read()
         
+        ## If read_protocol, must return only a profile class (with quadrapoles)
+        ## If read electrodes, returns a polyline class (a line of electrodes)
         
+    def __iter__(self):
+        
+        try:
+            if self.chunksize:
+                while True:
+                    yield self.read(self.chunksize)
+            else:
+                yield self.read()
+        except StopIteration:
+            pass
         
     
     
@@ -57,14 +91,18 @@ class R2Parser():
         pass
     
     
-    def _make_reader(self):
+    def _make_reader(self, f):
         """ This function should create a csv.reader instance with the appropriate dialect """
+        
+        self.data = csv.reader(f) #Need to add dialect
 
 
 class R2Protocol(R2Parser):
     
-    def __init__(self):
-        pass
+    def __init__(self, f):
+        R2Parser.__init__(self, f)
+        
+    
     
 class R2In(R2Parser):
     
